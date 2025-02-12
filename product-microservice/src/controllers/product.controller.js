@@ -1,6 +1,6 @@
 const Product = require("../models/product.model");
 
-// Get all products
+// Get all products (with owner details)
 exports.getProducts = async (req, res) => {
   try {
     const products = await Product.getAll();
@@ -21,11 +21,22 @@ exports.getProductById = async (req, res) => {
   }
 };
 
-// Create a new product
+// Get all products for a specific user
+exports.getProductsByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const products = await Product.getByUser(userId);
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+// Create a new product (linked to a user)
 exports.createProduct = async (req, res) => {
   try {
-    const { name, description, price, stock } = req.body;
-    const newProduct = await Product.create(name, description, price, stock);
+    const { user_id, name, description, price, stock } = req.body;
+    const newProduct = await Product.create(user_id, name, description, price, stock);
     res.status(201).json(newProduct);
   } catch (error) {
     res.status(400).json({ message: "Bad Request" });
@@ -35,8 +46,8 @@ exports.createProduct = async (req, res) => {
 // Update a product
 exports.updateProduct = async (req, res) => {
   try {
-    const { name, description, price, stock } = req.body;
-    const updatedProduct = await Product.update(req.params.id, name, description, price, stock);
+    const { user_id, name, description, price, stock } = req.body;
+    const updatedProduct = await Product.update(req.params.id, user_id, name, description, price, stock);
     res.json(updatedProduct);
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
